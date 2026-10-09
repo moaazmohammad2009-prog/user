@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  
+  <title>Lucky48 智能彩票投注单</title>
+  <meta name="title" content="Lucky48 智能彩票投注单">
+  <meta name="description" content="Lucky48 Professional Betting & Draw Settlement PWA Application">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lucky48">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23e11d48'/><circle cx='50' cy='50' r='40' fill='%23111827'/><text x='50' y='60' font-size='32' font-family='Arial,sans-serif' font-weight='bold' fill='%23fbbf24' text-anchor='middle'>48</text></svg>">
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    :root {
+      --color-bg-main: #0f172a;
+      --color-bg-card: #1e293b;
+      --color-bg-sub: #334155;
+      --color-bg-bottom: #090d16;
+      
+      --color-text-main: #f8fafc;
+      --color-text-muted: #94a3b8;
+      
+      --color-primary: #3b82f6;
+      --color-primary-hover: #2563eb;
+      --color-primary-dark: #1d4ed8;
+      --color-accent-gold: #f59e0b;
+      --color-accent-gold-light: #fbbf24;
+      
+      --color-status-win: #10b981;
+      --color-status-win-bg: rgba(16, 185, 129, 0.15);
+      --color-status-lose: #ef4444;
+      --color-status-lose-bg: rgba(239, 68, 68, 0.15);
+      
+      --color-border: #334155;
+      
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+      --shadow-glow-red: 0 0 10px rgba(239, 68, 68, 0.4);
+      --shadow-glow-blue: 0 0 10px rgba(59, 130, 246, 0.4);
+      
+      --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      color-scheme: dark;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      background-color: var(--color-bg-main);
+      color: var(--color-text-main);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      padding-bottom: 120px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-header {
+      background-color: var(--color-bg-card);
+      border-bottom: 1px solid var(--color-border);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand__logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #ef4444, var(--color-accent-gold));
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #ffffff;
+      font-size: 16px;
+      box-shadow: var(--shadow-glow-red);
+    }
+
+    .brand__title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      cursor: pointer;
+      user-select: none;
+      transition: transform var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn--sm {
+      background: var(--color-bg-sub);
+      color: var(--color-text-main);
+      border-color: var(--color-border);
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .btn--primary {
+      background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary-dark));
+      color: #ffffff;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      width: 100%;
+      margin-top: 10px;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn--action {
+      flex: 1;
+      min-width: 120px;
+      background: var(--color-bg-sub);
+      color: var(--color-text-main);
+      border: 1px solid var(--color-border);
+      padding: 8px 12px;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .btn--success {
+      background: #059669;
+      color: #ffffff;
+      border-color: var(--color-status-win);
+    }
+
+    .btn--danger {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: var(--color-status-lose);
+    }
+
+    .app-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 12px 14px;
+    }
+
+    .card {
+      background: var(--color-bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .card--highlight {
+      border-color: var(--color-primary);
+    }
+
+    .card__header {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-accent-gold);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    label {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    input, select {
+      background: var(--color-bg-main);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      color: var(--color-text-main);
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--transition-fast);
+    }
+
+    input:focus, select:focus {
+      border-color: var(--color-primary);
+    }
+
+    .meta-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--color-border);
+    }
+
+    .game-types-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+    }
+
+    .game-type-pill {
+      background: var(--color-bg-sub);
+      color: var(--color-text-muted);
+      border: 1px solid transparent;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all var(--transition-fast);
+    }
+
+    .game-type-pill.active {
+      background: var(--color-primary);
+      color: #ffffff;
+      box-shadow: var(--shadow-glow-blue);
+    }
+
+    .game-desc {
+      font-size: 12px;
+      color: var(--color-accent-gold);
+      margin: 8px 0;
+      background: rgba(245, 158, 11, 0.1);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--color-accent-gold);
+    }
+
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .ball-btn {
+      aspect-ratio: 1;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border);
+      background: var(--color-bg-sub);
+      color: var(--color-text-main);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s, background var(--transition-fast);
+    }
+
+    .ball-btn span.z-name {
+      font-size: 8px;
+      font-weight: 400;
+      color: var(--color-text-muted);
+      margin-top: -2px;
+    }
+
+    .ball-btn:active {
+      transform: scale(0.9);
+    }
+
+    .ball-btn.selected {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #f87171;
+      box-shadow: var(--shadow-glow-red);
+    }
+
+    .ball-btn.selected span.z-name {
+      color: #fef08a;
+    }
+
+    .quick-units {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      overflow-x: auto;
+    }
+
+    .unit-pill {
+      background: var(--color-bg-sub);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--color-text-muted);
+    }
+
+    .unit-pill.active {
+      background: var(--color-accent-gold);
+      color: #000000;
+      border-color: var(--color-accent-gold);
+    }
+
+    .calc-banner {
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .calc-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: #60a5fa;
+    }
+
+    .bets-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .bets-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .bets-table th {
+      color: var(--color-text-muted);
+      padding: 8px 6px;
+      font-size: 11px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .bets-table td {
+      padding: 10px 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--color-bg-bottom);
+      border-top: 1px solid var(--color-border);
+      padding: 10px 16px;
+      z-index: 40;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .bottom-content {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .summary-label {
+      font-size: 10px;
+      color: var(--color-text-muted);
+    }
+
+    .summary-val {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .summary-val.win { color: var(--color-status-win); }
+    .summary-val.lose { color: var(--color-status-lose); }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      transition: opacity var(--transition-normal);
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-box {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-accent-gold);
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--color-text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header" role="banner">
+    <div class="brand">
+      <div class="brand__logo" aria-hidden="true">48</div>
+      <div>
+        <h1 class="brand__title" id="txt-app-title">Lucky48 投注单</h1>
+        <div style="font-size: 10px; color: var(--color-text-muted);" id="device-badge">DEV: ...</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn--sm" id="btn-lang-toggle" aria-label="Toggle Language">English</button>
+    </div>
+  </header>
+
+  <main class="app-container" role="main">
+
+    <section class="card" aria-labelledby="txt-client-info">
+      <div class="card__header">
+        <span id="txt-client-info">📋 客户与日期信息</span>
+        <time style="font-size: 11px; font-weight: normal; color: var(--color-text-muted);" id="live-clock"></time>
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label id="lbl-date" for="input-date">投注日期 (Date)</label>
+          <input type="date" id="input-date">
+        </div>
+        <div class="form-group">
+          <label id="lbl-client" for="input-client">客户姓名 (Client Name)</label>
+          <input type="text" id="input-client" placeholder="例如: 张三 / Client A" autocomplete="off">
+        </div>
+      </div>
+      <div class="meta-bar">
+        <span><strong id="lbl-device">设备编号:</strong> <span id="val-device-id">DEV-7A2B</span></span>
+        <span><strong id="lbl-last-saved">已本地保存</strong></span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="txt-new-bet">
+      <div class="card__header">
+        <span id="txt-new-bet">🎯 录入投注项 (Line <span id="next-line-num">1</span>)</span>
+        <span style="font-size: 12px; color: var(--color-accent-gold);" id="val-ratio-badge">赔率 1:50</span>
+      </div>
+
+      <label id="lbl-game-type" style="margin-bottom: 6px; display: block;">选择玩法 (Game Type)</label>
+      <div class="game-types-scroll" id="game-types-container" role="tablist"></div>
+
+      <div class="game-desc" id="game-desc-box" role="region" aria-live="polite">
+        猜第7位特码 (1-48)，中奖赔率 1:50
+      </div>
+
+      <div id="selection-area"></div>
+
+      <div class="form-group" style="margin-top: 10px;">
+        <label id="lbl-bet-unit" for="input-bet-amount">投注金额 (Bet Unit Size)</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="number" id="input-bet-amount" value="10" min="1" step="1" style="font-weight: 700; font-size: 16px; color: var(--color-accent-gold);">
+        </div>
+        <div class="quick-units" id="quick-units-container" aria-label="Quick Select Amounts">
+          <button type="button" class="unit-pill active" data-unit="10">10</button>
+          <button type="button" class="unit-pill" data-unit="20">20</button>
+          <button type="button" class="unit-pill" data-unit="50">50</button>
+          <button type="button" class="unit-pill" data-unit="100">100</button>
+          <button type="button" class="unit-pill" data-unit="500">500</button>
+          <button type="button" class="unit-pill" data-unit="1000">1000</button>
+        </div>
+      </div>
+
+      <div class="calc-banner">
+        <div>
+          <span style="font-size: 11px; color: var(--color-text-muted);" id="lbl-calc-payout">预计中奖最高奖金 (Possible Payout)</span>
+          <div class="calc-val" id="val-calc-payout">500.00</div>
+        </div>
+        <div style="text-align: right;">
+          <span style="font-size: 11px; color: var(--color-text-muted);" id="lbl-win-rate">预设概率</span>
+          <div style="font-size: 14px; font-weight: 700; color: var(--color-text-main);" id="val-calc-prob">2.08%</div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn--primary" id="btn-add-bet">➕ 添加注单 (Confirm & Add Line)</button>
+    </section>
+
+    <section class="card" aria-labelledby="txt-current-bets">
+      <div class="card__header">
+        <span><span id="txt-current-bets">📑 当前注单明细</span> (<span id="count-lines">0</span> <span id="txt-lines-unit">行</span>)</span>
+        <button type="button" class="btn btn--sm" style="color: #ef4444;" id="btn-clear-bets">清空注单</button>
+      </div>
+      
+      <div class="bets-table-wrapper">
+        <table class="bets-table">
+          <thead>
+            <tr>
+              <th id="th-col-line">行号</th>
+              <th id="th-col-game">玩法</th>
+              <th id="th-col-selection">投注内容</th>
+              <th id="th-col-amount">金额</th>
+              <th id="th-col-payout">预计奖金</th>
+              <th id="th-col-result">结果/盈亏</th>
+              <th aria-label="Actions"></th>
+            </tr>
+          </thead>
+          <tbody id="bets-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="action-row">
+        <button type="button" class="btn btn--action btn--success" id="btn-export-json">💾 导出 JSON (带设备ID/时间)</button>
+        <button type="button" class="btn btn--action" id="btn-export-csv">📄 导出 CSV</button>
+        <button type="button" class="btn btn--action" id="btn-import-trigger">📂 导入本地注单</button>
+        <input type="file" id="file-importer" style="display: none;" accept=".json,.csv">
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bottom-bar" role="contentinfo">
+    <div class="bottom-content">
+      <div class="summary-item">
+        <span class="summary-label" id="lbl-bottom-total-count">总注数</span>
+        <span class="summary-val" id="bottom-total-count">0</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label" id="lbl-bottom-total-amount">投注总额</span>
+        <span class="summary-val" id="bottom-total-amount">¥0.00</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label" id="lbl-bottom-total-possible">预计最高赔付</span>
+        <span class="summary-val" style="color: #60a5fa;" id="bottom-total-possible">¥0.00</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label" id="lbl-bottom-total-result">实际中奖 / 盈亏</span>
+        <span class="summary-val" id="bottom-total-result">--</span>
+      </div>
+    </div>
+  </footer>
+
+  <dialog class="modal-overlay" id="modal-pwa" aria-labelledby="txt-pwa-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="txt-pwa-title">添加到手机屏幕 (图标无网络运行)</div>
+        <button type="button" class="modal-close" data-close-modal="modal-pwa" aria-label="Close Modal">&times;</button>
+      </div>
+      <div style="font-size: 13px; line-height: 1.6; color: var(--color-text-main);">
+        <p><strong>🍎 iPhone (Safari):</strong></p>
+        <p style="margin-bottom: 10px; color: var(--color-text-muted);">
+          点击浏览器底部的 <strong>分享按钮 (带有箭头的方框)</strong> ➔ 向下滑动点击 <strong>“添加到主屏幕” (Add to Home Screen)</strong> ➔ 点击右上角“添加”。
+        </p>
+        <p><strong>🤖 Android (Chrome / Edge):</strong></p>
+        <p style="color: var(--color-text-muted);">
+          点击右上角 <strong>三点菜单 (⋮)</strong> ➔ 选择 <strong>“添加到主屏幕” 或 “安装应用” (Install app)</strong>。
+        </p>
+        <div style="margin-top: 14px; padding: 10px; background: rgba(59, 130, 246, 0.1); border-radius: var(--radius-md); font-size: 12px; color: #93c5fd;">
+          💡 添加后可在手机桌面直接离线打开，无任何网络延迟，无需服务器。
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
